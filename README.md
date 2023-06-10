@@ -5,7 +5,7 @@ Assignment: Superpy
 
 # How to Use:
 	 --use {buy,sell,report,products}
-		Choose how to use (buy, sell, report)
+		Choose how to use (buy, sell, report, products)
 		buy to buy somthing from the store 
 		sell to sell somthing from the store
 		report to report history bought and sold items
