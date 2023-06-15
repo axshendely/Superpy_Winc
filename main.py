@@ -2,7 +2,6 @@
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
 __human_name__ = "superpy"
 
-import os
 import platform
 import subprocess
 import sys
@@ -22,9 +21,43 @@ def clear():
 
 class SUPERPY:
     """ Class """
+
     def __init__(self):
         self.bought_path = 'bought.csv'
         self.sold_path = 'sold.csv'
+        self.parser = argparse.ArgumentParser(description='Use This Program!')
+        self.sub_parser = self.parser.add_subparsers(dest="use")
+
+        self.sub_parser.add_parser('products', help='list all products in the store and there prices')
+
+        self.buyer = self.sub_parser.add_parser('buy',
+                                                help="buy a product from the store (python main.py sell -h) for help")
+        self.buyer.add_argument('--product_name', type=str,
+                                help='Wich Product you wish to buy ("python main.py products" to list)',
+                                dest="product_name",
+                                required=True)
+
+        self.seller = self.sub_parser.add_parser('sell',
+                                                 help="sell a product from the store (python main.py buy -h) for help")
+        self.seller.add_argument('--product_name', type=str,
+                                 help='Wich Product you wish to sell ("type python main.py products" to list)',
+                                 dest="product_name", required=True)
+
+        self.report = self.sub_parser.add_parser("report",
+                                                 help='report the store history python main.py report -h for more help')
+        self.report.add_argument('--report_type', choices=['sold', 'bought'],
+                                 help='Generate Report For sold or bought products Choose (sold, bought)',
+                                 required=True,
+                                 dest="report_type", type=str)
+        self.report.add_argument('--custom_date',
+                                 help='Extra Date Option Argument or Date (yesterday or date ex {2023-06-09}) or Nothing',
+                                 dest="date")
+        self.change_time = self.sub_parser.add_parser('change_time',
+                                                      help='Change your Server Date (python main.py change_time -h)')
+        self.change_time.add_argument('--time',
+                                      help='Changes the Current Date For some Reason (enter a date 2023-06-09 or a INT to jump by days)',
+                                      required=True, dest="time_to_change")
+        self.args = self.parser.parse_args()
 
     @staticmethod
     def get_date():
@@ -74,12 +107,22 @@ class SUPERPY:
         return product_id
 
     @staticmethod
-    def advance_time(days_to_increase):
+    def is_int(value):
+        try:
+            int(value)
+            return True
+        except Exception as e:
+            return False
+
+    def advance_time(self, fix_by_days):
         """ advance_time function """
-        current_date = get_date()
+        current_date = self.get_date()
         dt = datetime.strptime(current_date, '%Y-%m-%d')
-        yesterday = dt + timedelta(days=days_to_increase)
-        current_date = yesterday.strftime('%Y-%m-%d')
+        if self.is_int(value=fix_by_days):
+            fixed_date = dt + timedelta(days=int(fix_by_days))
+            current_date = fixed_date.strftime('%Y-%m-%d')
+        else:
+            current_date = fix_by_days
         with open("date.txt", "w") as tijd:
             tijd.write(current_date)
         sys.stdout.write("DONE!")
@@ -128,7 +171,7 @@ class SUPERPY:
         t.add_rows(get)
         sys.stdout.write(t.draw())
         total_amount = f"€{float(sum([float(alles[3]) for alles in get if '.' in alles[3] and len(alles[3].split('.')) == 2])):0.2f} EURO"
-        sys.stdout.write(f"\nYour Total Amount Earned in Euro € {total_amount} is !")
+        sys.stdout.write(f"\nYour Total Amount Earned in Euro is € {total_amount} !")
         return True
 
     def buy(self, product_name):
@@ -172,41 +215,30 @@ class SUPERPY:
 
     def main(self):
         """ main function """
-        parser = argparse.ArgumentParser(description='Use This Program!')
-        parser.add_argument('--use', type=str, choices=['buy', 'sell', 'report', 'products'],
-                            help='Choose how to use (buy, sell, report)', required=True)
-        parser.add_argument('--product_name', type=str,
-                            help='Wich Product you wish to buy or sell (--use products to list)')
-        parser.add_argument('--report', choices=['sold', 'bought'],
-                            help='Generate Report For sold or bought products (sold, bought)')
-        parser.add_argument('--date',
-                            help='Extra Date Option Argument or Date (yesterday or date ex {2023-06-09}) or Nothing')
-        parser.add_argument('--advance_time',
-                            help='Changes the Current Date For some Reason (enter a int to change by days)')
-        args = parser.parse_args()
-        pre_args = parser.parse_args()
-        if args.use == "buy" or args.use == "sell":
-            if args.product_name:
-                if args.use == 'buy':
-                    return self.buy(product_name=args.product_name)
-                elif args.use == 'sell':
-                    return self.sell(product_name=args.product_name)
+        if self.args.use == "buy" or self.args.use == "sell":
+            if self.args.product_name:
+                if self.args.use == 'buy':
+                    return self.buy(product_name=self.args.product_name)
+                elif self.args.use == 'sell':
+                    return self.sell(product_name=self.args.product_name)
                 else:
-                    return False
-        elif pre_args.use == "report":
-            if args.report == "sold":
-                if args.date:
-                    return self.to_report(type_to_report=args.report, date_to=args.date)
+                    exit("python main.py -h")
+        elif self.args.use == "report":
+            if self.args.report_type == "sold":
+                if self.args.date:
+                    return self.to_report(type_to_report=self.args.report_type, date_to=self.args.date)
                 else:
-                    return self.to_report(type_to_report=args.report)
-            elif args.report == "bought":
-                if args.date:
-                    return self.to_report(type_to_report=args.report, date_to=args.date)
+                    return self.to_report(type_to_report=self.args.report_type)
+            elif self.args.report_type == "bought":
+                if self.args.date:
+                    return self.to_report(type_to_report=self.args.report_type, date_to=self.args.date)
                 else:
-                    return self.to_report(type_to_report=args.report)
-        elif args.advance_time:
-            return self.advance_time(int(args.advance_time))
-        elif args.use == 'products':
+                    return self.to_report(type_to_report=self.args.report_type)
+            else:
+                exit("python main.py report -h")
+        elif self.args.use == "change_time":
+            return self.advance_time(self.args.time_to_change)
+        elif self.args.use == 'products':
             return self.list_products()
         else:
             exit("python main.py -h for help!")
