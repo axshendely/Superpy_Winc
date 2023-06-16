@@ -78,7 +78,7 @@ class SUPERPY:
         with open('bought.csv', mode='r', encoding='utf-8', errors='ignore') as reader_csv:
             values_in = csv.reader(reader_csv)
             for all_values in values_in:
-                t.add_row([all_values[0], all_values[1], all_values[3]])
+                t.add_row([all_values[0], all_values[1], all_values[3], all_values[4]])
         sys.stdout.write(t.draw())
         return values
 
@@ -249,3 +249,4 @@ if __name__ == '__main__':
     clear()
     main_class = SUPERPY()
     main_class.main()
+    
