@@ -7,8 +7,11 @@ import subprocess
 import sys
 import argparse
 import csv
+import random
 from texttable import Texttable
 from datetime import timedelta, datetime, date
+from colorama import Fore, Style
+from art import text2art
 
 
 def clear():
@@ -23,6 +26,7 @@ class SUPERPY:
     """ Class """
 
     def __init__(self):
+        print(self.banner())
         self.bought_path = 'bought.csv'
         self.sold_path = 'sold.csv'
         self.parser = argparse.ArgumentParser(description='Use This Program!')
@@ -44,7 +48,7 @@ class SUPERPY:
                                  dest="product_name", required=True)
 
         self.report = self.sub_parser.add_parser("report",
-                                                 help='report the store history python main.py report -h for more help')
+                                                 help='report the store history (python main.py report -h) for more help')
         self.report.add_argument('--report_type', choices=['sold', 'bought'],
                                  help='Generate Report For sold or bought products Choose (sold, bought)',
                                  required=True,
@@ -58,6 +62,14 @@ class SUPERPY:
                                       help='Changes the Current Date For some Reason (enter a date 2023-06-09 or a INT to jump by days)',
                                       required=True, dest="time_to_change")
         self.args = self.parser.parse_args()
+
+    @staticmethod
+    def banner():
+        bad_colors = ['BLACK', 'WHITE', 'LIGHTBLACK_EX', 'RESET']
+        codes = vars(Fore)
+        colors = [codes[color] for color in codes if color not in bad_colors]
+        colored_chars = [random.choice(colors) + text2art("Superpy_Winc", "random")]
+        return ''.join(colored_chars) + Style.RESET_ALL
 
     @staticmethod
     def get_date():
@@ -249,4 +261,3 @@ if __name__ == '__main__':
     clear()
     main_class = SUPERPY()
     main_class.main()
-    
