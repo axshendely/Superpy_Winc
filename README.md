@@ -68,7 +68,7 @@ To change the system's time, use the following command:
 python main.py change_time --time <change_time_to>
 
 
-Replace <time_duration> with the duration by which you want to advance the current time.
+Replace <change_time_to> with the duration by which you want to advance the current time by date or days.
 
 ### List Products
 
